@@ -1,0 +1,21 @@
+import numpy
+# A third-party package allowing us to work with multidimensional arrays, where arrays represent a powerful way to organize and process data.
+
+import pandas
+# Pandas allows us to organize data in a tabular form and to attach descriptive labels to the rows and the columns of the table, it is also suitable for working with time series and huge databases, necessarry for Data Science.
+
+import matplotlib
+# a 2D plotting library specially designed for visualization of NumPy computations.
+# Thoe above packages are part of SciPy, which is Python's ecosystem containing tools for scientific calculations, such as maths, AI, engineering and more.
+
+import math
+# math - mathematical functions.
+
+import random
+# random - invokes random number generators.
+
+import statsmodels
+# statsmodels - descriptive statistics, plotting functions and regressions.
+
+import pandas_datareader
+# pandas_datareader - help you retrieve data from the financial data sources and prepare for analysis
