@@ -1,0 +1,73 @@
+import numpy as np
+import pandas as pd
+
+from scipy import stats
+import statsmodels.api as sm
+
+import matplotlib.pyplot as plt
+
+data = pd.read_excel("C:\Users\user\anaconda3\Lib\files\Housing.xlsx")
+
+data
+
+data[["House Price", "House Size (sq.ft.)"]]
+
+# Univariate Regression
+
+X = data["House Size (sq.ft.)"]
+Y = data["House Price"]
+
+X
+
+Y
+
+plt.scatter(X, Y)
+plt.show()
+
+plt.scatter(X, Y)
+plt.axis([0, 2500, 0, 1500000])
+plt.show()
+
+plt.scatter(X, Y)
+plt.axis([0, 2500, 0, 1500000])
+plt.ylabel("House Price")
+plt.xlabel("House Size (sq.ft)")
+plt.show()
+
+# Since a simple regrssion with just one single explanatory variable will obit some important factors, which will result in an estimation error, it is useful but it isn't perfect.
+# The regression model can be written as: Y = Alpha + Beta * X + Error(Residuals)
+# The best fitting line should minimize the sum of the squared residuals
+# The coefficients found with this technique are called OLS(Ordinary Least Square) estimates.
+# As certain variables are better at predicting other variables, we could always build different regressions but are all regressions created equal, or namely those explanatory variables are doing a better job in describing certain independent variables? Some regressions have higher explanatory power than others. Hence, we need a tool that would allow us to measure such preperty and enable us to distinguish regressions.
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+# R-Square is used to assess whether our model is good/reliable enough
+# R^2 = 1 - SSR/TTS = 1 - SSR/Sum(x - x bar)^2
+# R-Square varies between 0% - 100%, The higher it is, the more predictive power the model has. 
+# Remarkbly, one variable regressions with an R-squared of 30%+ are solid indicators of good explanatory power.
+# It is said to be the indenpent variable(X) can explain XX% of the dependent variable(Y) in our regression.
+
+# Computing Alpha, Beta, and R-Square in Python
+
+X1 = sm.add_constant(X)
+reg = sm.OLS(Y, X1).fit()
+
+reg.summary()
+
+# Expected Value of Y from above OLS Regression Results:
+# Y = Alpha + Beta * X = 260800 + 402 * 1000
+
+# Alpha, Beta, R-Square
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(X, Y)
+
+slope
+
+intercept
+
+r_value
+
+r_value ** 2
+
+std_err
