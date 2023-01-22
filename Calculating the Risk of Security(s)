@@ -1,0 +1,115 @@
+import numpy as np
+import pandas as pd
+from pandas_datareader import data as wb
+import matplotlib.pyplot as plt
+
+tickers = ["PG", "BEI.DE"]
+
+sec_data = pd.DataFrame()
+
+for t in tickers:
+    sec_data[t] = wb.DataReader(t, data_source="yahoo", start = "2010-1-1")["Adj Close"]
+
+sec_data.tail()
+
+sec_returns = np.log(sec_data / sec_data.shift(1))
+
+sec_returns
+
+# PG
+
+sec_returns["PG"].mean()
+
+sec_returns["PG"].mean() * 250
+
+sec_returns["PG"].std()
+
+sec_returns["PG"].std() * 250 ** 0.5
+
+# Beiersdorf
+
+sec_returns["BEI.DE"].mean()
+
+sec_returns["BEI.DE"].mean() * 250
+
+sec_returns["BEI.DE"].std()
+
+sec_returns["BEI.DE"].std() * 250 ** 0.5
+
+print (sec_returns["PG"].mean() * 250)
+print (sec_returns["BEI.DE"].mean() * 250)
+
+sec_returns["PG", "BEI.DE"].mean() * 250
+
+sec_returns[["PG", "BEI.DE"]].mean() * 250
+
+sec_returns[["PG", "BEI.DE"]].std() * 250 ** 0.5
+
+# Covariance and Correlation
+
+PG_var = sec_returns["PG"].var()
+PG_var
+
+BEI_var = sec_returns["BEI.DE"].var()
+BEI_var
+
+PG_var_a = sec_returns["PG"].var() * 250
+PG_var_a
+
+BEI_var_a = sec_returns["BEI.DE"].var() * 250
+BEI_var_a
+
+# Calculating Portfolio Risk
+# Equal weighting scheme:
+
+weights = np.array([0.5, 0.5])
+
+# Portfolio Variance:
+
+pfolio_var = np.dot(weights.T, np.dot(sec_returns.cov() * 250, weights))
+pfolio_var
+
+# Portfolio Volatility:
+
+pfolio_vol = (np.dot(weights.T, np.dot(sec_returns.cov() * 250, weights))) ** 0.5
+pfolio_vol
+
+print str(round(pfolio_vol, 5) * 100) + " %"
+
+# Calculating Diversifiable and Non-Diversifiable Risk of a Portfolio
+
+weights = np.array([0.5, 0.5])
+
+# Diversifiable Risk = portfolio variance - weighted annual variances
+
+PG_var_a = sec_returns[["PG"]].var() * 250
+PG_var_a
+
+BEI_var_a = sec_returns[["BEI.DE"]].var() * 250
+BEI_var_a
+
+dr = pfolio_var - (weights[0] ** 2 * PG_var_a) - (weights[1] ** 2 * BEI_var_a)
+dr
+
+float(PG_var_a)
+
+PG_var_a = sec_returns["PG"].var() * 250
+PG_var_a
+
+BEI_var_a = sec_returns["BEI.DE"].var() * 250
+BEI_var_a
+
+dr = pfolio_var - (weights[0] ** 2 * PG_var_a) - (weights[1] ** 2 * BEI_var_a)
+dr
+
+print (str(round(dr * 100, 3)) + " %")
+
+# Non-Diversifiable Risk:
+
+n_dr_1 = pfolio_var - dr
+n_dr_1
+
+n_dr_2 = (weights[0] ** 2 * PG_var_a) + (weights[1] ** 2 * BEI_var_a)
+n_dr_2
+
+n_dr_1 == n_dr_2
