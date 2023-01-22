@@ -1,0 +1,35 @@
+import numpy as np
+from pandas_datareader import data as wb
+import matplotlib.pyplot as plt
+
+PG = wb.DataReader("PG", data_source='yahoo', start='2005-1-1')
+
+PG['simple_return'] = (PG['Adj Close'] / PG['Adj Close'].shift(1)) - 1
+print (PG['simple_return'])
+
+PG['simple_return'].plot(figsize=(8, 5))
+plit.show()
+
+avg_returns_d = PG['simple_return'].mean()
+avg_returns_d
+
+avg_returns_a = PG['simple_return'].mean() * 250
+avg_returns_a
+
+print str(round(avg_returns_a, 5) * 100) + " %"
+
+# Logarithmic Returns
+
+PG.head()
+
+PG['Log_return'] = np.log(PG['Adj Close'] / PG['Adj Close'].shift(1))
+print (PG['Log_return'])
+
+PG['Log_return'].plot(figsize=(8, 5))
+plt.show()
+
+log_return_d = PG['Log_return'].mean()
+Log_return_d
+
+log_return_a = PG['Log_return'].mean() * 250
+Log_return_a
