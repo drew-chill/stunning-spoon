@@ -1,0 +1,54 @@
+import numpy as np
+import pandas as pd
+from pandas_datareader import data as wb
+import matplotlib.pyplot as plt
+
+tickers: ["PG", "MSFT", "F", "GE"]
+mydata = pd.DataFrame()
+for t in tickers:
+    mydata[t] = wb.DataReader(t, data_source = "yahoo", start = "2015-1-1")["Adj Close"]
+
+mydata.info()
+
+mydata.head()
+
+mydata.tail()
+
+# Normalization to 100: Pt/P0 * 100
+
+mydata.iloc[0]
+
+(mydata / mydata.iloc[0] * 100).plot(figsize = (15, 6));
+plt.show()
+
+mydata.plot(figsize = (15, 6))
+plt.show
+
+mydata.loc["2015-01-03"]
+
+mydata.iloc[0]
+
+# Calculating the Return of a Portfolio of Securities
+
+returns = (mydata / mydata.shift(1)) - 1
+returns.head()
+
+weights = np.array([0.25, 0.25, 0.25, 0.25])
+
+np.dot(returns, weights)
+
+annual_returns = returns.mean() * 250
+annual_returns
+
+np.dot(annual_returns, weights)
+
+pfolio_1 = str(round(np.dot(annual_returns, weights), 5) * 100) + " %"
+print (pfolio_1)
+
+# Changing our weights over the portfolio
+
+weights_2 = np.array([0.4, 0.4, 0.15, 0.05])
+
+pfolio_2 = str(round(np.dot(annual_returns, weights_2), 5) * 100) + " %"
+print (pfolio_1)
+print (pfolio_2)
