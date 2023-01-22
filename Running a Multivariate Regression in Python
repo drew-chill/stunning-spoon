@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd
+from scipy import stats
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+
+data = pd.read_excel("C:\Users\user\Desktop\Python与量化投资：从基础到实战\Housing.xlsx")
+
+data
+
+# Multivariate Regression:
+# Case I: Independent Variables: "House Size (sq.ft)", "Number of Rooms", "Year of Construction"
+
+x = data[["House Size (sq.ft)", "Number of Rooms", "Year of Construction"]]
+y = data["House Price"]
+
+X1 = sm.add_constant(X)
+reg = sm.OLS(Y, X1).fit()
+
+reg.summary()
+
+# Case II: Independent Variables: "House Size (sq.ft)", "Number of Rooms"
+
+x = data[["House Size (sq.ft)", "Number of Rooms"]]
+y = data["House Price"]
+
+X1 = sm.add_constant(X)
+reg = sm.OLS(Y, X1).fit()
+
+reg.summary()
+
+# Case III: Independent Variables: "House Size (sq.ft)", "Year of Construction"
+
+x = data[["House Size (sq.ft)", "Year of Construction"]]
+y = data["House Price"]
+
+X1 = sm.add_constant(X)
+reg = sm.OLS(Y, X1).fit()
+
+reg.summary()
+
+# Since p-values of the explanatory variables from the above cases are different (rise/drop significantly), we cannot confirm they can influence the price of a house. However, it serves some good guidance for future research. Here are some points we could conculde from the findings:
+# 1. Gather more data above observations. As the p-values of "House Size" and "Number of Rooms" might decrease, but since the R-Square is as high as 0.683, it is not necessary for us to gather more data then.
+# 2. "House Size" and "Number of Rooms" could be related.
+# 3. Gather data about more explanatory variables.
+# Therefore, Regressions can give us a good direction for future research. Regression analysis can be invaluable when we study the past to predict future behavior!
