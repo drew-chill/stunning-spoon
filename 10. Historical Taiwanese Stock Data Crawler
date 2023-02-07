@@ -8,7 +8,7 @@ import csv
  
 yf.pdr_override()
  
-Analysis = '/users/louishan/Desktop/Csvfile/2330.csv'
+Analysis = '/users/Desktop/Csvfile/2330.csv'
  
 start = dt.datetime(2017, 6, 14)
 end = dt.datetime(2018, 6, 14)
