@@ -1,0 +1,24 @@
+from pandas_datareader import data as web
+from matplotlib import pyplot as plt
+ 
+import fix_yahoo_finance as yf
+import datetime as dt
+import pandas as pd
+import csv
+ 
+yf.pdr_override()
+ 
+Analysis = '/users/louishan/Desktop/Csvfile/2330.csv'
+ 
+start = dt.datetime(2017, 6, 14)
+end = dt.datetime(2018, 6, 14)
+ 
+df = web.get_data_yahoo(['2330.TW'], start, end)
+df.to_csv(Analysis)
+ 
+data = pd.read_csv(Analysis, parse_dates=True, index_col='Date')
+price = data["Close"]
+price.head()
+ 
+plt.plot(price)
+plt.show()
