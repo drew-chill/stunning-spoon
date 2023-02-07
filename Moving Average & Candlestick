@@ -1,0 +1,23 @@
+from matplotlib import pyplot as plt
+from matplotlib import style
+import pandas as pd
+import csv
+ 
+style.use('ggplot')
+ 
+Analysis = "/users/Desktop/Csvfile/AAPL.csv"
+ 
+data = pd.read_csv(Analysis, parse_dates=True, index_col='Date')
+ 
+price = data['Close']
+price.head()
+ 
+moving_avg = price.rolling(20).mean()
+ 
+data = data.reset_index()
+data['Date'] = data['Date'].apply(lambda d: mdates.date2num(d.to_pydatetime()))
+candlestick = [tuple(x) for x in data[['Date','Open','High','Low','Close']].values]
+candlestick_ohlc(ax1, candlestick, width=0.7,colorup='r',colordown='green',alpha=0.8)
+ 
+plt.plot(moving_avg)
+plt.show()
