@@ -1,0 +1,217 @@
+def profit():
+ 
+    trade = pd.concat([
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == 1, "Close"],
+ 
+                      "operation": "Buy"}),
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == -1, "Close"],
+ 
+                      "operation": "Sell"}),
+ 
+    ])
+ 
+    trade.sort_index(inplace=True)
+    trade.index = range(1, len(trade) + 1)
+ 
+    trade['ops_diff'] = trade['price'].diff()
+ 
+    trade['profit'] = trade[trade['operation'] == 'Sell']['ops_diff']
+ 
+    print(trade)
+ 
+    wintimes = sum(1 for x in trade['profit'] if x > 0)
+    tradetimes = int(len(trade['profit'].dropna()))
+ 
+    losttimes = sum(1 for x in trade['profit'] if x < 0)
+ 
+    sum_win_price = sum((n) for n in trade['profit'] if n > 0)
+    sum_win_price_times = (sum(1 for x in trade['profit'] if x > 0))
+ 
+    sum_lose_price = sum((abs(n)) for n in trade['profit'] if n < 0)
+    sum_lose_price_times = sum(1 for x in trade['profit'] if x < 0)
+ 
+    Total_profit_and_loss = trade['profit'].sum()
+ 
+    print("勝率","%.2f%%" % (wintimes / tradetimes * 100))
+ 
+    print("平均獲利金額", "%.2f" % (sum_win_price / sum_win_price_times))
+ 
+    print("平均虧損金額", "%.2f" % (sum_lose_price / sum_lose_price_times))
+ 
+    print("盈虧比", "%.2f" % ((sum_win_price / sum_win_price_times) / (sum_lose_price / sum_lose_price_times)))
+ 
+    print("總損益", "%.2f" % (Total_profit_and_loss))
+ 
+    print("交易次數", tradetimes)
+ 
+    print("獲利金額", "%.2f" % (sum_win_price))
+ 
+    print("獲利次數", wintimes)
+ 
+    print("虧損金額", "%.2f" % (sum_lose_price))
+ 
+    print("虧損次數", losttimes)
+ 
+    print("單次最大虧損", min((trade['profit'].dropna())))
+ 
+    print("單次最大獲利", max((trade['profit'].dropna())))
+ 
+    data.to_csv(csv_file, encoding='utf-8')
+
+
+加在各個分析策略中的範例（Python 交易策略應用「深度分析」程式範例）
+
+from pandas_datareader import data as web
+from mpl_finance import candlestick_ohlc
+from matplotlib import pyplot as plt
+from matplotlib import style
+ 
+import matplotlib.dates as mdates
+import fix_yahoo_finance as yf
+import datetime as dt
+import pandas as pd
+import numpy as np
+import time
+ 
+style.use('dark_background')
+ 
+yf.pdr_override()
+ 
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+ 
+stock = "2330"
+ 
+csv_file = "/Users/Desktop/Csvfile/AnalysisData.csv"
+Analysis = '/users/Desktop/Csvfile/stockdata.csv'
+ 
+start = dt.datetime(2017, 5, 1)
+end = dt.datetime.now()
+ 
+df = web.get_data_yahoo([(stock) + ".TW"], start, end)
+df.to_csv(Analysis)
+ 
+data = pd.read_csv(Analysis, parse_dates=True, index_col='Date')
+price = data["Close"]
+price.head()
+ 
+n = len(price)
+ 
+top = plt.subplot2grid((12, 9), (0, 0), rowspan=9, colspan=9)
+bottom = plt.subplot2grid((12, 9), (10, 0), rowspan=2, colspan=9)
+ 
+ 
+def MAStrategy3():
+    global data
+    global price
+ 
+    data["MA_FAST"] = np.round(data["Close"].rolling(window=20, center=False).mean(), 2)
+    data["MA_SLOW"] = np.round(data["Close"].rolling(window=60, center=False).mean(), 2)
+ 
+ 
+    data["MAFAST_MASLOW"] = data["MA_FAST"] - data["MA_SLOW"]
+ 
+    data.tail()
+ 
+    data["MAFAST_MASLOW_x"] = data["MAFAST_MASLOW"] - data["MAFAST_MASLOW"].shift(1)
+ 
+    data["MA-Price-Signal"] = np.where(data["MAFAST_MASLOW_x"] > 0, 1, 0)
+    data["MA-Price-Signal"] = np.where(data["MAFAST_MASLOW_x"] < 0, -1, data["MA-Price-Signal"])
+ 
+    data["MA-Price-Signal"].value_counts()
+ 
+    regime_orig =  data.ix[-1, "MA-Price-Signal"]
+ 
+    data["Signal"] = np.sign(data["MA-Price-Signal"] - data["MA-Price-Signal"].shift(1))
+ 
+    data.ix[-1, "MA-Price-Signal"] = regime_orig
+ 
+    data.tail()
+ 
+    top.plot(data["MA_FAST"], color='b', linewidth=1, alpha=0.7, label='MA10')
+    top.plot(data["MA_SLOW"], color='r', linewidth=1, alpha=0.7, label='MA30')
+ 
+    top.grid(which='both', alpha=0.3)
+ 
+    top.plot(data.loc[data["Signal"] == 1, "Close"], '^', markersize=5, color='blue', label="Buy")
+    top.plot(data.loc[data["Signal"] == -1, "Close"], 'v', markersize=5, color='orange', label="Sell")
+ 
+    data = data.reset_index()
+    data['Date'] = data['Date'].apply(lambda d: mdates.date2num(d.to_pydatetime()))
+    candlestick = [tuple(x) for x in data[['Date', 'Open', 'High', 'Low', 'Close']].values]
+    candlestick_ohlc(top, candlestick, width=0.5, colorup='r', colordown='green', alpha=0.7)
+ 
+    data["Signal"].plot(ylim=(-2, 2))
+ 
+    profit() #績效分析主程式放在策略的 function（MAStrategy3()）裡面
+ 
+    top.legend()
+    plt.show()
+ 
+ 
+def profit():
+ 
+    trade = pd.concat([
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == 1, "Close"],
+ 
+                      "operation": "Buy"}),
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == -1, "Close"],
+ 
+                      "operation": "Sell"}),
+ 
+    ])
+ 
+    trade.sort_index(inplace=True)
+    trade.index = range(1, len(trade) + 1)
+ 
+    trade['ops_diff'] = trade['price'].diff()
+ 
+    trade['profit'] = trade[trade['operation'] == 'Sell']['ops_diff']
+ 
+    print(trade)
+ 
+    wintimes = sum(1 for x in trade['profit'] if x > 0)
+    tradetimes = int(len(trade['profit'].dropna()))
+ 
+    losttimes = sum(1 for x in trade['profit'] if x < 0)
+ 
+    sum_win_price = sum((n) for n in trade['profit'] if n > 0)
+    sum_win_price_times = (sum(1 for x in trade['profit'] if x > 0))
+ 
+    sum_lose_price = sum((abs(n)) for n in trade['profit'] if n < 0)
+    sum_lose_price_times = sum(1 for x in trade['profit'] if x < 0)
+ 
+    Total_profit_and_loss = trade['profit'].sum()
+ 
+    print("勝率","%.2f%%" % (wintimes / tradetimes * 100))
+ 
+    print("平均獲利金額", "%.2f" % (sum_win_price / sum_win_price_times))
+ 
+    print("平均虧損金額", "%.2f" % (sum_lose_price / sum_lose_price_times))
+ 
+    print("盈虧比", "%.2f" % ((sum_win_price / sum_win_price_times) / (sum_lose_price / sum_lose_price_times)))
+ 
+    print("總損益", "%.2f" % (Total_profit_and_loss))
+ 
+    print("交易次數", tradetimes)
+ 
+    print("獲利金額", "%.2f" % (sum_win_price))
+ 
+    print("獲利次數", wintimes)
+ 
+    print("虧損金額", "%.2f" % (sum_lose_price))
+ 
+    print("虧損次數", losttimes)
+ 
+    print("單次最大虧損", min((trade['profit'].dropna())))
+ 
+    print("單次最大獲利", max((trade['profit'].dropna())))
+ 
+    data.to_csv(csv_file, encoding='utf-8')
+ 
+ 
+MAStrategy3()
