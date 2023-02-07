@@ -14,7 +14,7 @@ yf.pdr_override()
  
 stock = 2330
  
-Analysis = '/users/louishan/Desktop/Csvfile/stockdata.csv'
+Analysis = '/users/Desktop/Csvfile/stockdata.csv'
  
 fig = plt.figure()
 ax1 = fig.add_subplot(111)
