@@ -1,0 +1,95 @@
+from pandas_datareader import data as web
+from mpl_finance import candlestick_ohlc
+from matplotlib import pyplot as plt
+from matplotlib import style
+ 
+import matplotlib.dates as mdates
+import fix_yahoo_finance as yf
+import datetime as dt
+import pandas as pd
+import numpy as np
+import time
+ 
+style.use('dark_background')
+ 
+yf.pdr_override()
+ 
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+ 
+stock = "2317"
+ 
+Analysis = '/users/Desktop/Csvfile/stockdata.csv'
+ 
+start = dt.datetime(2018, 8, 30)
+end = dt.datetime(2018, 10, 18)
+ 
+df = web.get_data_yahoo([str(stock) + '.TW'], start, end)
+df.to_csv(Analysis)
+ 
+data = pd.read_csv(Analysis, parse_dates=True, index_col='Date')
+price = data["Close"]
+price.head()
+ 
+MA10data = []
+MA5data = []
+ 
+n = len(price)
+ 
+top = plt.subplot2grid((12, 9), (0, 0), rowspan=9, colspan=9)
+bottom = plt.subplot2grid((12, 9), (10, 0), rowspan=2, colspan=9)
+ 
+ 
+def MAStrategy2():
+    global data
+    global price
+ 
+    data["MA_FAST"] = np.round(data["Close"].rolling(window=5, center=False).mean(), 2)
+    data["MA_SLOW"] = np.round(data["Close"].rolling(window=21, center=False).mean(), 2)
+ 
+    data["MAFAST_MASLOW"] = data["MA_FAST"] - data["MA_SLOW"]
+ 
+    data["MA-Price-Signal"] = np.where(data['MAFAST_MASLOW'] > 0, 1, 0)
+    data["MA-Price-Signal"] = np.where(data['MAFAST_MASLOW'] < 0, -1, data["MA-Price-Signal"])
+ 
+    data["MA-Price-Signal"].value_counts()
+ 
+    regime_orig = data.ix[-1, "MA-Price-Signal"]
+ 
+    data["Signal"] = np.sign(data["MA-Price-Signal"] - data["MA-Price-Signal"].shift(1))
+ 
+    data.ix[-1, "MA-Price-Signal"] = regime_orig
+ 
+    top.plot(data["MA_FAST"], color='b', linewidth=1, alpha=0.7, label='MA5')
+    top.plot(data["MA_SLOW"], color='r', linewidth=1, alpha=0.7, label='MA10')
+    top.grid(which='both', alpha=0.3)
+ 
+    top.plot(data.loc[data["Signal"] == 1, "Close"], '^', markersize=5, color='blue', label="Buy")
+    top.plot(data.loc[data["Signal"] == -1, "Close"], 'v', markersize=5, color='orange', label="Sell")
+ 
+    data = data.reset_index()
+    data['Date'] = data['Date'].apply(lambda d: mdates.date2num(d.to_pydatetime()))
+    candlestick = [tuple(x) for x in data[['Date', 'Open', 'High', 'Low', 'Close']].values]
+    candlestick_ohlc(top, candlestick, width=0.5, colorup='r', colordown='green', alpha=0.7)
+ 
+    data["Signal"].plot(ylim=(-2, 2))
+ 
+    trade = pd.concat([
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == 1, "Close"],
+ 
+                      "operation": "Buy"}),
+ 
+        pd.DataFrame({"price": data.loc[data["Signal"] == -1, "Close"],
+ 
+                      "operation": "Sell"})
+ 
+    ])
+ 
+    trade.sort_index(inplace=True)
+    print(trade)
+ 
+    top.legend()
+    plt.show()
+ 
+MAStrategy2()
