@@ -1,8 +1,8 @@
-import panda as pd
-df = pd.read_pickle("D:/Quant//DefaultRate.pickle")
+import pandas as pd
+df = pd.read_pickle("D://Quant//DefaultRate.pickle")
 df['date'] = pd.to_datetime(df['date'])
-df.sort_values(by=['date', 'cb_id'], inplace=True)
-cohort_sizes = df.groupby('cb_id')['rating'].count()
+df.sort_values(by=['date', 'cb_id'], inplace = True)
+cohort_size = df.groupby('cb_id')['rating'].count()
 defaults = df.groupby('cb_id')['default'].sum()
 
 total_customers = cohort_sizes.sum()
