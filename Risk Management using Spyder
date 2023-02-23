@@ -1,0 +1,26 @@
+import panda as pd
+df = pd.read_pickle("D:/Quant//DefaultRate.pickle")
+df['date'] = pd.to_datetime(df['date'])
+df.sort_values(by=['date', 'cb_id'], inplace=True)
+cohort_sizes = df.groupby('cb_id')['rating'].count()
+defaults = df.groupby('cb_id')['default'].sum()
+
+total_customers = cohort_sizes.sum()
+total_defaults = defaults.sum()
+default_rate_pooled = total_defaults / total_customers
+print(f"Pooled Default Rate (without withdrawals adjustment): {default_rate}/100
+
+df_wr = df[['cb_id', 'WR']].drop_duplicates()
+total_customers_wr = df_wr.groupby('cb_id')['WR'].last.().sum()
+total_defaults_wr = df_wr.groupby('cb_id')['WR'].last().dot(defaults) / df_wr
+default_rate_pooled_wr = total_defaults_wr / total_customers_wr
+print(f"Pooled Default Rate (with withdrawals adjustment): {default_rate}/100
+
+average_default_rate_cohorts = defaults / cohort_size
+average_default_rate = average_default_rate_cohorts.mean()
+print(f"Average Default Rate (without withdrawals adjustment): {average_default_rate}/100
+
+df_wr['defaults'] = defaults
+df_wr['cohort_size'] = cohort_size
+df_wr.dropna(inplace = True)
+df_wr['wr_percentage'] = df_wr['WR'] / df_wr['WR'].sum()
