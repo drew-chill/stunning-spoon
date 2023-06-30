@@ -29,6 +29,7 @@ if __name__ == '__main__':
     start = datetime.datetime(2014, 1, 1)
     end = datetime.datetime(2018, 1, 1)
 
+    # citigroup stock = 'C'
     stock_data = download_data('C', start, end)
 
     stock_data["returns"] = np.log(stock_data["C"] / stock_data["C"].shift(1))
