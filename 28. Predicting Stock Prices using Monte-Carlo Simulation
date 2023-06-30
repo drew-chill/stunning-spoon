@@ -25,6 +25,7 @@ def stock_monte_carlo(S0, mu, sigma, N = 252):
 
     simulation_data["mean"] = simulation_data.mean(axis=1)
 
+    # plt.plot(simulation_data)
     plt.plot(simulation_data["mean"])
     plt.show()
 
